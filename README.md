@@ -7,59 +7,63 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-## About Laravel
+## Sobre o projeto
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Um pequeno e sucinto projeto desenvolvido em laravel para consumir tópicos no Apache Kafka.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Requerimentos
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Para rodar este projeto você deve ter instalado o docker e docker-compose.
 
-## Learning Laravel
+## Instalação
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Rode o comando para buildar a imagem do php e subir os serviços da aplicação.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+OBS: O projeto laravel ficará disponivel na porta 8086 do seu localhsot. Certifique-se que sua porta esteja disponível.
+```
+docker-compose build && docker-compose up -d
 
-## Laravel Sponsors
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
 
-### Premium Partners
+Agora dentro do container do laravel você precisa instalar as dependências e rodar as migrations de teste. Para isso entre no terminal do container:
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[CMS Max](https://www.cmsmax.com/)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+```
+docker exec -it laravel-test-app bash
+composer install && php artisan migrate
 
-## Contributing
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Criação tópico no kafka
 
-## Code of Conduct
+Agora precisamos criar o tópico que será consumido pela aplicação. Para isso entre no terminal do container do kafka e rode o comando:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```
+docker exec -it laravel-test_kafka_1 bash
+kafka-topics --create --bootstrap-server localhost:29092 --partitions 3 --replication-factor 1 --topic topico-2
+```
+Note que coloquei 3 repartições para o tópico. Fique a vontade para mudar caso queira ou precise.
 
-## Security Vulnerabilities
+OBS: Caso precise mudar o nome do tópico, vai precisar mudar o nome no código igualmente.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Kafka send e kafka consumer
 
-## License
+Para mandar mensagens para o tópico foi criada uma rota GET no path /kafka-send. Será disparado uma mensgem automáticamente.
+Poderia ser um POST mandando no body a mensagem que precise, mas está assim apenas por exemplo.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+http://localhost:8086/kafka-send
+
+Para consumir essa mensagem foi criado um consumer que fica escutando o mesmo tópico. Para isso rode o comando (dentro do container do laravel):
+
+```
+php artisan kafka:consumer
+```
+
+Esse processo irá printar no terminal o body da mensagem, apenas como exemplo.
+
+## Encerrar processos
+
+Você pode facilmente parar os serviços do docker com o comando
+```
+docker-compose down
+```
