@@ -29,7 +29,7 @@ Agora dentro do container do laravel você precisa instalar as dependências e r
 
 ```
 docker exec -it laravel-test-app bash
-cp .env.example .env && composer install && php artisan migrate && php artisan db:seed
+cp .env.example .env && composer install && php artisan migrate && php artisan db:seed && exit
 ```
 Estre projeto foi configurado para usar o banco de dados postgres. Após rodar as migrations e o seed, existe um endpoint simples que lista os clientes cadastrados para testar a conexão com o banco de dados.
 
@@ -40,8 +40,8 @@ http://localhost:8086/api/customers
 Agora precisamos criar o tópico que será consumido pela aplicação. Para isso entre no terminal do container do kafka e rode o comando:
 
 ```
-docker exec -it laravel-test_kafka_1 bash
-kafka-topics --create --bootstrap-server localhost:29092 --partitions 3 --replication-factor 1 --topic topico-2
+docker exec -it laravel-test-kafka bash
+kafka-topics --create --bootstrap-server localhost:29092 --partitions 3 --replication-factor 1 --topic topico-2 && exit
 ```
 Note que coloquei 3 repartições para o tópico. Fique a vontade para mudar caso queira ou precise.
 
@@ -49,16 +49,18 @@ OBS: Caso precise mudar o nome do tópico, vai precisar mudar o nome no código 
 
 ## Kafka send e kafka consumer
 
+Para consumir essa mensagem foi criado um consumer que fica escutando o mesmo tópico. Para isso rode o comando (dentro do container do laravel):
+
+```
+docker exec -it laravel-test-app bash
+php artisan kafka:consumer
+```
+
 Para mandar mensagens para o tópico foi criada uma rota GET no path /kafka-send. Será disparado uma mensgem automáticamente.
 Poderia ser um POST mandando no body a mensagem que precise, mas está assim apenas por exemplo.
 
 http://localhost:8086/kafka-send
 
-Para consumir essa mensagem foi criado um consumer que fica escutando o mesmo tópico. Para isso rode o comando (dentro do container do laravel):
-
-```
-php artisan kafka:consumer
-```
 
 Esse processo irá printar no terminal o body da mensagem, apenas como exemplo.
 
