@@ -25,13 +25,15 @@ OBS2: Dentro do arquivo docker-compose.yml estão os argumentos de usuário e UI
 docker-compose build && docker-compose up -d 
 ```
 
-
 Agora dentro do container do laravel você precisa instalar as dependências e rodar as migrations de teste. Para isso entre no terminal do container:
 
 ```
 docker exec -it laravel-test-app bash
-cp .env.example .env && composer install && php artisan migrate
+cp .env.example .env && composer install && php artisan migrate && php artisan db:seed
 ```
+Estre projeto foi configurado para usar o banco de dados postgres. Após rodar as migrations e o seed, existe um endpoint simples que lista os clientes cadastrados para testar a conexão com o banco de dados.
+
+http://localhost:8086/api/customers
 
 ## Criação tópico no kafka
 
@@ -64,5 +66,5 @@ Esse processo irá printar no terminal o body da mensagem, apenas como exemplo.
 
 Você pode facilmente parar os serviços do docker com o comando
 ```
-docker-compose down
+docker-compose down && docker rmi laravel-test
 ```
