@@ -22,7 +22,7 @@ Rode o comando para buildar a imagem do php e subir os serviços da aplicação.
 OBS: O projeto laravel ficará disponivel na porta 8086 do seu localhsot. Certifique-se que sua porta esteja disponível.
 OBS2: Dentro do arquivo docker-compose.yml estão os argumentos de usuário e UID para configurar o composer.
 ```
-docker-compose build && docker-compose up -d
+docker-compose build && docker-compose up -d 
 ```
 
 
@@ -30,7 +30,7 @@ Agora dentro do container do laravel você precisa instalar as dependências e r
 
 ```
 docker exec -it laravel-test-app bash
-composer install && php artisan migrate
+cp .env.example .env && composer install && php artisan migrate
 ```
 
 ## Criação tópico no kafka
