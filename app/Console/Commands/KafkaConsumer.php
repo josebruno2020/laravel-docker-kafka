@@ -41,8 +41,6 @@ class KafkaConsumer extends Command
         $consumer = Kafka::createConsumer()
             ->withHandler(function(\Junges\Kafka\Contracts\KafkaConsumerMessage $message) {
                 // Handle your message here
-                // echo 'Recebi essa bosta de mensagem kkkkk'; echo '<br>';
-                // print_r($message->getBody());
                 // exit;
                 var_dump($message->getBody());
             })
