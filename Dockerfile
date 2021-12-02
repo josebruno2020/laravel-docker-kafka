@@ -4,21 +4,8 @@ FROM php:8.0-fpm
 ARG user
 ARG uid
 
-# Install system dependencies
-# RUN apt-get update && apt-get install -y \
-#     git \
-#     curl \
-#     libpng-dev \
-#     libonig-dev \
-#     libxml2-dev \
-#     zip \
-#     unzip \
-#     python \
-#     librdkafka-dev 
-    # php8.0-dev \ 
-    # php-pear
 
-    # Packages
+# Packages
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y \
         git \
@@ -38,35 +25,20 @@ RUN apt-get update \
             && make \
             && make install \
         ) 
-        # \
-    # && rm -r /var/lib/apt/lists/*
 
 # PHP Extensions
 RUN docker-php-ext-install -j$(nproc) zip \
     && pecl install rdkafka \
     && docker-php-ext-enable rdkafka
 
-
+# Install PHP extensions and setup pgsql
 RUN apt-get install -y libpq-dev \
     && docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
     && docker-php-ext-install pdo pdo_pgsql pgsql mbstring exif pcntl bcmath gd sockets
  
-# KAFKA
-
-
-# RUN pecl channel-update pecl.php.net \
-#     && pecl install rdkafka-$EXT_RDKAFKA_VERSION \
-#     && docker-php-ext-enable rdkafka \
-#     && rm -rf /librdkafka \
-#     && apk del $BUILD_DEPS
-
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-
-
-# Install PHP extensions
-# RUN docker-php-ext-install 
 
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

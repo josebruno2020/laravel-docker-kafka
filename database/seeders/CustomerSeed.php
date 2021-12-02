@@ -14,8 +14,8 @@ class CustomerSeed extends Seeder
      */
     public function run()
     {
-        $this->createCustomer('José Bruno', 'jose@bruno.com');
-        $this->createCustomer('André Missão', 'andrea@missao.com');
+        $this->createCustomer(name: 'José Bruno', email: 'jose@bruno.com');
+        $this->createCustomer(name: 'André Missão', email: 'andrea@missao.com');
     }
 
     private function createCustomer(string $name, string $email): Customer
